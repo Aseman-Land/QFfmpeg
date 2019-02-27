@@ -1,0 +1,3 @@
+module QFfmpeg
+classname QFfmpegPlugin
+plugin declarative_qffmpeg
