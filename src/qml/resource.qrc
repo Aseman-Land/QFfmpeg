@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/QFfmpeg">
+        <file>qml/ScreenView.qml</file>
+    </qresource>
+</RCC>

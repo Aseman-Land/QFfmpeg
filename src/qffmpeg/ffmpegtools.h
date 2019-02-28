@@ -42,6 +42,9 @@ public:
     void setTempDirectory(const QString &tempDir);
     QString getTempDirectory() const;
 
+    void setFfmpegPath(const QString &ffmpegpath);
+    QString getFfmpegPath() const;
+
 private:
     struct ProcessStatus {
         QTime startTime;
@@ -49,6 +52,7 @@ private:
         qreal lastProgress;
     };
     
+    QString ffmpegPath;
     QString tempDirectory;
 
     QHash<QProcess*, QByteArray> buffers;

@@ -8,12 +8,15 @@ HEADERS += \
     $$PWD/qffmpegplugin.h \
     $$PWD/ffmpegrender.h \
     $$PWD/ffmpegjob.h \
-    ffmpegscreencapture.h
+    $$PWD/ffmpegscreencapture.h
 
 SOURCES += \
     $$PWD/qffmpegplugin.cpp \
     $$PWD/ffmpegrender.cpp \
     $$PWD/ffmpegjob.cpp \
-    ffmpegscreencapture.cpp
+    $$PWD/ffmpegscreencapture.cpp
 
 load(qml_plugin)
+
+RESOURCES += \
+    resource.qrc

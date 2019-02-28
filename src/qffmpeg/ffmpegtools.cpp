@@ -6,10 +6,14 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <QDebug>
+
 FfmpegTools::FfmpegTools(QObject *parent) :
     QObject(parent)
 {
-    tempDirectory = QCoreApplication::applicationDirPath();
+    // fix this
+    tempDirectory = QDir::tempPath();
+    ffmpegPath = QStringLiteral("ffmpeg");
 }
 
 FfmpegTools::~FfmpegTools()
@@ -63,7 +67,7 @@ void FfmpegTools::cut(const QString &inputFile, qint32 from_ms, qint32 to_ms, co
     qint32 duration = to_ms - from_ms;
 
     QStringList options = {QStringLiteral("-y"),  QStringLiteral("-ss"), startTime.toString(QStringLiteral("HH:mm:s.zzz")), QStringLiteral("-i"), inputFile, QStringLiteral("-to"), endTime.toString(QStringLiteral("HH:mm:s.zzz")), /*"-c", "copy", */outputFile, QStringLiteral("-avoid_negative_ts"), QStringLiteral("make_zero"), QStringLiteral("-hide_banner")};
-    ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+    ffmpegProcess->start(ffmpegPath, options);
 
     processStatus[ffmpegProcess].startTime = QTime::currentTime();
     processStatus[ffmpegProcess].lastProgress = 0;
@@ -128,7 +132,7 @@ void FfmpegTools::merge(const QStringList &inputFiles, const QString &outputFile
                 QProcess *ffmpegProcess = new QProcess(this);
                 ffmpegProcess->setWorkingDirectory(QCoreApplication::applicationDirPath());
                 QStringList options = {QStringLiteral("-y"), QStringLiteral("-f"), QStringLiteral("concat"), QStringLiteral("-safe"), QStringLiteral("0"), QStringLiteral("-i"), QStringLiteral("list"), /*"-c", "copy", */outputFile, QStringLiteral("-hide_banner")};
-                ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+                ffmpegProcess->start(ffmpegPath, options);
 
                 processStatus[ffmpegProcess].startTime = QTime::currentTime();
                 processStatus[ffmpegProcess].lastProgress = 0;
@@ -187,7 +191,7 @@ void FfmpegTools::convert(const QString &inputFile, const QSize &resolution, qre
         }
 
         QStringList options = {QStringLiteral("-y"),  QStringLiteral("-i"), inputFile, QStringLiteral("-r"), QString::number(fps), QStringLiteral("-c:v"), QStringLiteral("libx264"), QStringLiteral("-c:a"), QStringLiteral("copy"), QStringLiteral("-vf"), "scale=" + QString::number(resolution.width()) + ":" + QString::number(resolution.height()), outputFile};
-        ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+        ffmpegProcess->start(ffmpegPath, options);
 
         processStatus[ffmpegProcess].startTime = QTime::currentTime();
         processStatus[ffmpegProcess].lastProgress = 0;
@@ -227,7 +231,7 @@ void FfmpegTools::getData(const QString &inputFile, std::function<void (Metadata
 {
     QProcess *ffmpegProcess = new QProcess(this);
     QStringList options = {QStringLiteral("-y"), QStringLiteral("-i"), inputFile, QStringLiteral("-hide_banner")};
-    ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+    ffmpegProcess->start(ffmpegPath, options);
 
     connect(ffmpegProcess, &QProcess::readyReadStandardOutput, this, [ffmpegProcess, this](){
         buffers[ffmpegProcess] += ffmpegProcess->readAllStandardOutput();
@@ -302,8 +306,8 @@ void FfmpegTools::takeScreenshot(const QString &inputFile, qint32 capture_time, 
 
     QProcess *ffmpegProcess = new QProcess(this);
     QStringList options = {QStringLiteral("-y"), QStringLiteral("-ss"), time.toString(QStringLiteral("HH:mm:s.zzz")), QStringLiteral("-i"), inputFile, outputFile, QStringLiteral("-hide_banner")};
-    ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
-
+    qDebug() << ffmpegPath << options;
+    ffmpegProcess->start(ffmpegPath, options);
     connect(ffmpegProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [ffmpegProcess, callback](){
         callback(QString::fromUtf8(ffmpegProcess->readAllStandardOutput()));
         ffmpegProcess->deleteLater();
@@ -318,6 +322,16 @@ void FfmpegTools::setTempDirectory(const QString &tempDir)
 QString FfmpegTools::getTempDirectory() const
 {
     return tempDirectory;
+}
+
+void FfmpegTools::setFfmpegPath(const QString &ffmpegpath)
+{
+    ffmpegPath = ffmpegpath;
+}
+
+QString FfmpegTools::getFfmpegPath() const
+{
+    return ffmpegPath;
 }
 
 void FfmpegTools::render_cut(const QString &outputFile, const QList<FfmpegTools::Render> renderListCopy, QList<FfmpegTools::Render> renderList, const QSize &resolution, const QHash<QString, FfmpegTools::Metadata> &renderListData, std::function<void (qreal, const QString &, qint32)> callback, qint32 nameKey)
@@ -380,7 +394,7 @@ void FfmpegTools::setMetaData(const QString &inputFile, QHash<QString, QString> 
         QStringList options = {QStringLiteral("-y"),  QStringLiteral("-i"), inputFile, QStringLiteral("-c"), QStringLiteral("copy")};
         options.append(metadataList);
         options.append(outputFile);
-        ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+        ffmpegProcess->start(ffmpegPath, options);
 
         processStatus[ffmpegProcess].startTime = QTime::currentTime();
         processStatus[ffmpegProcess].lastProgress = 0;
@@ -420,7 +434,7 @@ void FfmpegTools::getMetaData(const QString &inputFile, std::function<void (QHas
 {
     QProcess *ffmpegProcess = new QProcess(this);
     QStringList options = {QStringLiteral("-y"), QStringLiteral("-i"), inputFile, QStringLiteral("-hide_banner")};
-    ffmpegProcess->start(QCoreApplication::applicationDirPath() + "/" + QStringLiteral("ffmpeg"), options);
+    ffmpegProcess->start(ffmpegPath, options);
 
     connect(ffmpegProcess, &QProcess::readyReadStandardOutput, this, [ffmpegProcess, this](){
         buffers[ffmpegProcess] += ffmpegProcess->readAllStandardOutput();

@@ -2,6 +2,8 @@
 #define FFMPEGSCREENCAPTURE_H
 
 #include <QObject>
+#include <QUrl>
+#include <QDebug>
 
 #include <ffmpegtools.h>
 
@@ -12,6 +14,7 @@ class FfmpegScreenCapture : public QObject
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QString output READ output WRITE setOutput NOTIFY outputChanged)
+    Q_PROPERTY(QString ffmpegPath READ ffmpegPath WRITE setFfmpegPath NOTIFY ffmpegPathChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
 
 public:
@@ -27,14 +30,18 @@ public:
     void setOutput(const QString &output);
     QString output() const;
 
+    void setFfmpegPath(const QString &ffmpegPath);
+    QString ffmpegPath() const;
+
     bool running() const;
 
 Q_SIGNALS:
     void sourceChanged();
     void positionChanged();
     void outputChanged();
+    void ffmpegPathChanged();
     void runningChanged();
-    void finished(const QString &output);
+    void finished(const QUrl &output);
 
 public slots:
     void start();

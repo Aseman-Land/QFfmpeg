@@ -22,7 +22,6 @@ FfmpegRender::FfmpegRender(QObject *parent) : QObject(parent)
     p->progress = 0;
     p->running = false;
     p->ffmpegTools = Q_NULLPTR;
-    // fix
     p->ffmpegPath = "";
 }
 
@@ -138,6 +137,7 @@ void FfmpegRender::start()
         renderList.append(renderobj);
     }
     p->ffmpegTools = new FfmpegTools(this);
+    p->ffmpegTools->setFfmpegPath(p->ffmpegPath);
     p->ffmpegTools->render(renderList, p->resolution, p->fps, p->output, [this](qreal progress, const QString &log, qint32 remainingTime){
         setProgress(progress);
     });
