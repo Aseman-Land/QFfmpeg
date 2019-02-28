@@ -1,3 +1,3 @@
-# QtFfmpeg
+# QFfmpeg
 
-QtFfmpeg is a qt module for using ffmpeg
+QFfmpeg is a qt module for using ffmpeg
