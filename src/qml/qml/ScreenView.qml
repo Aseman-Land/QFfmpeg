@@ -1,6 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Window 2.2
-import QFfmpeg 0.1
+import QFfmpeg 0.2
 
 Item {
     property alias source: screenCapture.source
@@ -9,19 +9,13 @@ Item {
     property alias ffmpegPath: screenCapture.ffmpegPath
     property alias sourceSize: screenView.sourceSize
     property alias verticalAlignment: screenView.verticalAlignment
+    property alias fillMode: screenView.fillMode
     Image {
         id: screenView
         anchors.fill: parent
-        fillMode: fillMode
-        sourceSize: sourceSize
-        verticalAlignment: verticalAlignment
     }
     FFmpegScreenCapture {
         id: screenCapture
-        source: source
-        output: output
-        position: position
-        ffmpegPath: ffmpegPath
         onSourceChanged: {
             screenCapture.start()
         }

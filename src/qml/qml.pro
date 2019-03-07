@@ -1,6 +1,6 @@
 TARGET  = qffmpeg
 TARGETPATH = QFfmpeg
-IMPORT_VERSION = 0.1
+IMPORT_VERSION = 0.2
 
 QT += core quick qml qffmpeg
 

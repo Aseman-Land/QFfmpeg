@@ -312,15 +312,17 @@ void FfmpegTools::convert(const QString &inputFile, const QSize &resolution, qre
 void FfmpegTools::getData(const QString &inputFile, std::function<void (Metadata)> callback)
 {
     QPointer<QProcess> ffmpegProcess = new QProcess(this);
-    QStringList options = {QStringLiteral("-y"), QStringLiteral("-i"), inputFile, QStringLiteral("-hide_banner")};
+    QStringList options = {QStringLiteral("-i"), inputFile, QStringLiteral("-hide_banner")};
     ffmpegProcess->start(ffmpegPath, options);
-    qDebug() << ffmpegPath << options;
+
     connect(ffmpegProcess, &QProcess::readyReadStandardOutput, this, [=](){
         buffers[ffmpegProcess] += ffmpegProcess->readAllStandardOutput();
     });
 
     connect(ffmpegProcess, &QProcess::readyReadStandardError, this, [=](){
         buffers[ffmpegProcess] += ffmpegProcess->readAllStandardError();
+
+
     });
 
     connect(ffmpegProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [ffmpegProcess, this, callback](){
@@ -356,12 +358,13 @@ void FfmpegTools::render(QList<FfmpegTools::Render> renderList, const QSize &res
     QDir dir(tempDirectory + "/temp");
     dir.removeRecursively();
     qreal *totalProgress = new qreal(0);
-    const qreal singleProgress = 1.0 / renderList.length();
+    const qreal singleProgress = 1.0 / (renderList.length() + 1);
     auto topCallback = [callback, totalProgress, singleProgress](qreal progress, const QString &log, qint32 remainingTime) {
         if(progress == -1)
             return;
         qreal newProgress = progress * singleProgress;
         callback(*totalProgress + newProgress, log, remainingTime);
+        qDebug() << *totalProgress + newProgress;
         if(progress == 1.0) {
             *totalProgress += singleProgress;
         }

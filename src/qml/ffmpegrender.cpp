@@ -25,7 +25,7 @@ FfmpegRender::FfmpegRender(QObject *parent) : QObject(parent)
     p->progress = 0;
     p->running = false;
     p->ffmpegTools = Q_NULLPTR;
-    p->ffmpegPath = "";
+    p->ffmpegPath = "ffmpeg";
 }
 
 FfmpegRender::~FfmpegRender()
