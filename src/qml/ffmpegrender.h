@@ -15,11 +15,12 @@ class FfmpegRender : public QObject
 
     Q_PROPERTY(qreal fps READ fps WRITE setFPS NOTIFY fpsChanged)
     Q_PROPERTY(QSize resolution READ resolution WRITE setResolution NOTIFY resolutionChanged)
+    Q_PROPERTY(QString encoder READ encoder WRITE setEncoder NOTIFY encoderChanged)
     Q_PROPERTY(QString output READ output WRITE setOutput NOTIFY outputChanged)
     Q_PROPERTY(QString ffmpegPath READ ffmpegPath WRITE setFfmpegPath NOTIFY ffmpegPathChanged)
     Q_PROPERTY(qreal progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
-    Q_PROPERTY(QString tempDirectory READ tempDirectory NOTIFY tempDirectoryChanged)
+    Q_PROPERTY(QString tempDirectory READ tempDirectory WRITE setTempDirectory NOTIFY tempDirectoryChanged)
     Q_PROPERTY(QQmlListProperty<FfmpegJob> items READ items NOTIFY itemsChanged)
     Q_CLASSINFO("DefaultProperty", "items")
 
@@ -36,13 +37,16 @@ public:
     void setResolution(QSize resolution);
     QSize resolution() const;
 
+    void setEncoder(const QString &encoder);
+    QString encoder() const;
+
     void setOutput(const QString &output);
     QString output() const;
 
     void setFfmpegPath(const QString &ffmpegPath);
     QString ffmpegPath() const;
 
-    void setTempDirectory(const QString &&tempDir);
+    void setTempDirectory(const QString &tempDir);
     QString tempDirectory() const;
 
     qreal progress() const;
@@ -53,6 +57,7 @@ Q_SIGNALS:
     void itemsChanged();
     void fpsChanged();
     void resolutionChanged();
+    void encoderChanged();
     void outputChanged();
     void ffmpegPathChanged();
     void progressChanged();

@@ -1,12 +1,14 @@
 #include "ffmpegrender.h"
 
 #include "ffmpegtools.h"
+#include <QDebug>
 
 class FfmpegRenderPrivate {
 public:
     QList<FfmpegJob*> items;
     qreal fps;
     QSize resolution;
+    QString encoder;
     QString output;
     QString ffmpegPath;
     qreal progress;
@@ -19,6 +21,7 @@ FfmpegRender::FfmpegRender(QObject *parent) : QObject(parent)
 {
     p = new FfmpegRenderPrivate;
     p->fps = 0;
+    p->encoder = "";
     p->progress = 0;
     p->running = false;
     p->ffmpegTools = Q_NULLPTR;
@@ -71,6 +74,20 @@ QSize FfmpegRender::resolution() const
     return p->resolution;
 }
 
+void FfmpegRender::setEncoder(const QString &encoder)
+{
+   if(p->encoder == encoder)
+       return;
+
+   p->encoder = encoder;
+   Q_EMIT encoderChanged();
+}
+
+QString FfmpegRender::encoder() const
+{
+    return p->encoder;
+}
+
 void FfmpegRender::setOutput(const QString &output)
 {
     if(p->output == output)
@@ -99,19 +116,18 @@ QString FfmpegRender::ffmpegPath() const
     return p->ffmpegPath;
 }
 
-void FfmpegRender::setTempDirectory(const QString &&tempDir)
+void FfmpegRender::setTempDirectory(const QString &tempDir)
 {
     if(p->tempDirectory == tempDir)
         return;
 
-    p->tempDirectory == tempDir;
-    p->ffmpegTools->setTempDirectory(tempDir);
+    p->tempDirectory = tempDir;
     Q_EMIT tempDirectoryChanged();
 }
 
 QString FfmpegRender::tempDirectory() const
 {
-    return p->ffmpegTools->getTempDirectory();
+    return p->tempDirectory;
 }
 
 qreal FfmpegRender::progress() const
@@ -137,8 +153,9 @@ void FfmpegRender::start()
         renderList.append(renderobj);
     }
     p->ffmpegTools = new FfmpegTools(this);
+    p->ffmpegTools->setTempDirectory(p->tempDirectory);
     p->ffmpegTools->setFfmpegPath(p->ffmpegPath);
-    p->ffmpegTools->render(renderList, p->resolution, p->fps, p->output, [this](qreal progress, const QString &log, qint32 remainingTime){
+    p->ffmpegTools->render(renderList, p->resolution, p->fps, p->encoder, p->output, [this](qreal progress, const QString &log, qint32 remainingTime){
         setProgress(progress);
     });
     Q_EMIT runningChanged();
